@@ -2,12 +2,14 @@ package com.mycompany.starter;
 
 
 import static com.codename1.ui.CN.*;
+
 import com.codename1.ui.Display;
 import com.codename1.ui.Form;
 import com.codename1.ui.Dialog;
 import com.codename1.ui.Label;
 import com.codename1.ui.plaf.UIManager;
 import com.codename1.ui.util.Resources;
+import com.mycompany.game.Game;
 import com.codename1.io.Log;
 import com.codename1.ui.Toolbar;
 import java.io.IOException;
@@ -51,9 +53,9 @@ public class Starter {
             current.show();
             return;
         }
-        Form hi = new Form("Hi World", BoxLayout.y());
-        hi.add(new Label("Hi World"));
-        hi.show();
+        
+        new Game();
+        
     }
 
     public void stop() {
@@ -68,3 +70,5 @@ public class Starter {
     }
 
 }
+
+
