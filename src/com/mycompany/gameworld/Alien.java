@@ -1,4 +1,3 @@
-// Alien class (extends Opponent)
 package com.mycompany.gameworld;
 
 import com.codename1.charts.util.ColorUtil;
@@ -14,7 +13,10 @@ public class Alien extends Opponent {
 	
 	@Override
 	public String toString() {
-	    return "Alien: loc=" + getLocation() + " size=" + getSize() + " speed=" + getSpeed();
+	    return "Alien: location: " + getLocation() + 
+	    		" size: " + getSize() + 
+	    		" speed: " + getSpeed() + 
+	    		" direction: " + getDirection();
 	}
 }
 

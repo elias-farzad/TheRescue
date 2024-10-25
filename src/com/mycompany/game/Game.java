@@ -1,183 +1,238 @@
 package com.mycompany.game;
 
-import com.codename1.io.Log;
-import com.codename1.ui.*;
-import com.codename1.ui.events.*;
+import com.codename1.ui.FontImage;
+import com.codename1.ui.Form;
+import com.codename1.ui.layouts.BorderLayout;
+import com.codename1.ui.layouts.BoxLayout;
 import com.mycompany.gameworld.GameWorld;
-import java.lang.String;
-import com.codename1.ui.TextField;
-import com.codename1.ui.Label;
-import com.codename1.ui.events.ActionEvent;
-import com.codename1.ui.events.ActionListener;
+import com.mycompany.gameview.ScoreView;
+import com.mycompany.gameview.MapView;
+import com.mycompany.gameview.commands.*;
+import com.mycompany.gameview.components.StyledButton;
+import com.codename1.ui.Container;
+import com.codename1.ui.CheckBox;
+import com.codename1.ui.Dialog;
+import com.codename1.ui.Toolbar;
 
+/**
+ * The main application class acting as the Controller.
+ * Extends Form and manages the GUI components.
+ */
+public class Game extends Form {
+    
+    private GameWorld gw;
+    
+    // UI Components
+    private ScoreView scoreView;
+    private MapView mapView;
+    
+    // Command Buttons
+    private StyledButton expandDoorButton;
+    private StyledButton contractDoorButton;
+    private StyledButton openDoorButton;
+    private StyledButton moveRightButton;
+    private StyledButton moveLeftButton;
+    private StyledButton moveUpButton;
+    private StyledButton moveDownButton;
+    private StyledButton jumpToAstronautButton;
+    private StyledButton jumpToAlienButton;
+    private StyledButton createAlienButton;
+    private StyledButton alienAstronautFightButton;
+    private StyledButton clockTickButton;
+    private StyledButton toggleSoundButton;
+    private StyledButton exitButton;
+    
+    // Commands
+    private ExpandDoorCommand expandDoorCommand;
+    private ContractDoorCommand contractDoorCommand;
+    private OpenDoorCommand openDoorCommand;
+    private MoveRightCommand moveRightCommand;
+    private MoveLeftCommand moveLeftCommand;
+    private MoveUpCommand moveUpCommand;
+    private MoveDownCommand moveDownCommand;
+    private JumpToAstronautCommand jumpToAstronautCommand;
+    private JumpToAlienCommand jumpToAlienCommand;
+    private CreateAlienCommand createAlienCommand;
+    private AlienAstronautFightCommand alienAstronautFightCommand;
+    private ClockTickCommand clockTickCommand;
+    private ToggleSoundCommand toggleSoundCommand;
+    private ExitCommand exitCommand;
+    
+    /**
+     * Constructor initializes the Model and View, and sets up the GUI.
+     */
+    public Game() {
+        super("Space Rescue Game", new BorderLayout());
+        
+        // Initialize GameWorld (Model)
+        gw = GameWorld.getInstance();
+        gw.init();
+        
+        // Initialize UI Components
+        initUI();
+        
+        // Set up Side Menu
+        setupSideMenu();
+        
+        // Set up Key Bindings
+        setupKeyBindings();
+        
+        // Register ScoreView as Observer
+        gw.addObserver(scoreView);
+        
+        // Show the form
+        this.show();
+    }
 
-public class Game  extends Form{
-	private GameWorld gw;
-
-	public Game() {
-		gw = new GameWorld();
-		gw.init();
-		play();
-	}
-
-	private void play() {
-
-		// Accept and execute user commands that operate on the game world
-		Label myLabel = new Label("Enter a Command:");
-		this.addComponent(myLabel);
-
-		final TextField myTextField = new TextField();
-		this.addComponent(myTextField);
-
-		System.out.println("Before setting up the form.");
-		this.show();
-		System.out.println("Form displayed.");
-
-
-		myTextField.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent evt) {
-				try {
-
-					String sCommand=myTextField.getText().toString();
-
-					myTextField.setText("");
-
-					if(sCommand.length() != 0) {
-
-						// Dialog box to confirm the command was received (debug)
-						Dialog.show("Command Received", "You entered: " + sCommand, "OK", null);
-						Log.p("Command entered: " + sCommand); // Log the command
-
-						switch (sCommand.charAt(0)) {
-						case 'a':
-							gw.jumpToRandomAlien();
-							Dialog.show("Action", "Jumped to random alien.", "OK", null);
-							Log.p("Jumped to random alien.");
-							break;
-						case 'o':
-							gw.jumpToRandomAstronaut();
-							Dialog.show("Action", "Jumped to a random astronaut.", "OK", null);
-							Log.p("Executed command: Jumped to a random astronaut.");
-							break;
-
-						case 'r':  // Move spaceship right
-							gw.moveSpaceshipRight();
-							Dialog.show("Action", "Moved spaceship to the right.", "OK", null);
-							Log.p("Executed command: Moved spaceship to the right.");
-							break;
-
-						case 'l':  // Move spaceship left
-							gw.moveSpaceshipLeft();
-							Dialog.show("Action", "Moved spaceship to the left.", "OK", null);
-							Log.p("Executed command: Moved spaceship to the left.");
-							break;
-
-						case 'u':  // Move spaceship up
-							gw.moveSpaceshipUp();
-							Dialog.show("Action", "Moved spaceship up.", "OK", null);
-							Log.p("Executed command: Moved spaceship up.");
-							break;
-
-						case 'd':  // Move spaceship down
-							gw.moveSpaceshipDown();
-							Dialog.show("Action", "Moved spaceship down.", "OK", null);
-							Log.p("Executed command: Moved spaceship down.");
-							break;
-
-						case 'e':  // Expand spaceship door
-							gw.expandSpaceshipDoor();
-							Dialog.show("Action", "Expanded spaceship door.", "OK", null);
-							Log.p("Executed command: Expanded spaceship door.");
-							break;
-
-						case 'c':  // Contract spaceship door
-							gw.contractSpaceshipDoor();
-							Dialog.show("Action", "Contracted spaceship door.", "OK", null);
-							Log.p("Executed command: Contracted spaceship door.");
-							break;
-
-						case 't':  // Tick the game clock
-							gw.clockTick();
-							Dialog.show("Action", "Game clock ticked.", "OK", null);
-							Log.p("Executed command: Ticked the game clock.");
-							break;
-
-						case 's':  // Open spaceship door
-							gw.openSpaceshipDoor();
-							Dialog.show("Action", "Opened spaceship door.", "OK", null);
-							Log.p("Executed command: Opened spaceship door.");
-							break;
-
-						case 'w':  // Simulate alien-alien collision
-							gw.alienCollision();
-							Dialog.show("Action", "Simulated alien-alien collision.", "OK", null);
-							Log.p("Executed command: Simulated alien-alien collision.");
-							break;
-
-						case 'f':  // Simulate alien-astronaut fight
-							gw.alienAstronautFight();
-							Dialog.show("Action", "Simulated alien-astronaut fight.", "OK", null);
-							Log.p("Executed command: Simulated alien-astronaut fight.");
-							break;
-
-						case 'p':  // Print game state
-							gw.printGameState();
-							Dialog.show("Game State", "Check the logs for game state details.", "OK", null);
-							Log.p("Executed command: Printed game state.");
-							break;
-
-						case 'm':  // Print game world map
-							gw.printMap();
-							Dialog.show("Map", "Check the logs for the game world map.", "OK", null);
-							Log.p("Executed command: Printed game world map.");
-							break;
-
-						case 'x':  // Exit the game
-							gw.setExitPending(true);  // Set a flag to confirm exit
-							Dialog.show("Exit Confirmation", "Are you sure you want to exit? (y/n)", "OK", null);
-							Log.p("Executed command: Requested to exit the game.");
-							break;
-
-						case 'y':  // Confirm exit
-							if (gw.isExitPending()) {
-								Dialog.show("Exit", "Exiting the game. Goodbye!", "OK", null);
-								Log.p("Executed command: Confirmed exit. Exiting game.");
-								System.exit(0);  // Exit the program
-							} else {
-								Dialog.show("Exit", "No exit request pending.", "OK", null);
-								Log.p("Executed command: No exit pending. Exit command ignored.");
-							}
-							break;
-
-						case 'n':  // Cancel exit
-							if (gw.isExitPending()) {
-								gw.setExitPending(false);  // Cancel exit confirmation
-								Dialog.show("Exit", "Exit canceled.", "OK", null);
-								Log.p("Executed command: Canceled exit.");
-							} else {
-								Dialog.show("Exit", "No exit request pending.", "OK", null);
-								Log.p("Executed command: No exit pending. Cancel command ignored.");
-							}
-							break;
-
-						default:
-							// Handle invalid commands
-							Dialog.show("Error", "Invalid Command: " + sCommand, "OK", null);
-							Log.p("Invalid command entered: " + sCommand);
-							break;
-						}
-					} else {
-						// Handle empty command input
-						Dialog.show("Error", "No Command Entered.", "OK", null);
-						Log.p("No command entered.");
-					}
-				} catch (Exception e) {
-					// Catch and log any unexpected exceptions
-					Dialog.show("Exception", "An error occurred: " + e.getMessage(), "OK", null);
-					Log.e(e);
-				}
-			}
-		});
-	}
+    /**
+     * Initializes the UI components and layout.
+     */
+    private void initUI() {
+        // Initialize ScoreView and MapView
+        scoreView = new ScoreView();
+        mapView = new MapView();
+        
+        // Add ScoreView to North and MapView to Center
+        this.add(BorderLayout.NORTH, scoreView);
+        this.add(BorderLayout.CENTER, mapView);
+        
+        // Initialize Command Buttons
+        expandDoorButton = new StyledButton("Expand Door");
+        contractDoorButton = new StyledButton("Contract Door");
+        openDoorButton = new StyledButton("Open Door");
+        moveRightButton = new StyledButton("Move Right");
+        moveLeftButton = new StyledButton("Move Left");
+        moveUpButton = new StyledButton("Move Up");
+        moveDownButton = new StyledButton("Move Down");
+        jumpToAstronautButton = new StyledButton("Jump to Astronaut");
+        jumpToAlienButton = new StyledButton("Jump to Alien");
+        createAlienButton = new StyledButton("Create Alien");
+        alienAstronautFightButton = new StyledButton("Alien Astronaught Fight");
+        clockTickButton = new StyledButton("Clock Tick");
+        toggleSoundButton = new StyledButton("Toggle Sound");
+        exitButton = new StyledButton("Exit");
+        
+        // Initialize Command Objects
+        expandDoorCommand = new ExpandDoorCommand(gw);
+        contractDoorCommand = new ContractDoorCommand(gw);
+        openDoorCommand = new OpenDoorCommand(gw);
+        moveRightCommand = new MoveRightCommand(gw);
+        moveLeftCommand = new MoveLeftCommand(gw);
+        moveUpCommand = new MoveUpCommand(gw);
+        moveDownCommand = new MoveDownCommand(gw);
+        jumpToAstronautCommand = new JumpToAstronautCommand(gw);
+        jumpToAlienCommand = new JumpToAlienCommand(gw);
+        createAlienCommand = new CreateAlienCommand(gw);
+        alienAstronautFightCommand = new AlienAstronautFightCommand(gw);
+        clockTickCommand = new ClockTickCommand(gw);
+        toggleSoundCommand = new ToggleSoundCommand(gw);
+        exitCommand = new ExitCommand();
+        
+        // Assign Commands to Buttons
+        expandDoorButton.setCommand(expandDoorCommand);
+        contractDoorButton.setCommand(contractDoorCommand);
+        openDoorButton.setCommand(openDoorCommand);
+        moveRightButton.setCommand(moveRightCommand);
+        moveLeftButton.setCommand(moveLeftCommand);
+        moveUpButton.setCommand(moveUpCommand);
+        moveDownButton.setCommand(moveDownCommand);
+        jumpToAstronautButton.setCommand(jumpToAstronautCommand);
+        jumpToAlienButton.setCommand(jumpToAlienCommand);
+        createAlienButton.setCommand(createAlienCommand);
+        alienAstronautFightButton.setCommand(alienAstronautFightCommand);
+        clockTickButton.setCommand(clockTickCommand);
+        toggleSoundButton.setCommand(toggleSoundCommand);
+        exitButton.setCommand(exitCommand);
+        
+        // Create Containers for West, East, and South
+        Container westContainer = new Container(new BoxLayout(BoxLayout.Y_AXIS));
+        Container eastContainer = new Container(new BoxLayout(BoxLayout.Y_AXIS));
+        Container southContainer = new Container(new BoxLayout(BoxLayout.X_AXIS));
+        
+        // Add Buttons to Containers
+        westContainer.addAll(moveUpButton, moveDownButton);
+        eastContainer.addAll(moveLeftButton, moveRightButton);
+        southContainer.addAll(expandDoorButton, contractDoorButton, openDoorButton,
+                               jumpToAstronautButton, jumpToAlienButton, createAlienButton,
+                               alienAstronautFightButton, clockTickButton, toggleSoundButton, exitButton);
+        
+        // Add Containers to the Form
+        this.add(BorderLayout.WEST, westContainer);
+        this.add(BorderLayout.EAST, eastContainer);
+        this.add(BorderLayout.SOUTH, southContainer);
+    }
+    
+    /**
+     * Sets up the side menu with "Score", "Sound", "About", and "Exit" items.
+     */
+    private void setupSideMenu() {
+        Toolbar tb = this.getToolbar();
+        
+        // Add "Score" Menu Item
+        tb.addMaterialCommandToSideMenu("Score", FontImage.MATERIAL_SCORE, e -> {
+            // Implement Score Command
+            Dialog.show("Score", "Current Score Details are in the Score View.", "OK", null);
+        });
+        
+        // Add "Sound" Menu Item with Checkbox
+        CheckBox soundCheckbox = new CheckBox("Sound");
+        soundCheckbox.setSelected(gw.isSoundOn());
+        soundCheckbox.addActionListener(e -> {
+            gw.toggleSound();
+            soundCheckbox.setSelected(gw.isSoundOn());
+            scoreView.updateSoundStatus(gw.isSoundOn());
+        });
+        tb.addComponentToSideMenu(soundCheckbox);
+        
+        // Add "About" Menu Item
+        tb.addMaterialCommandToSideMenu("About", FontImage.MATERIAL_INFO, e -> {
+            Dialog.show("About", "App by Elias Farzad\nCourse: Object Oriented Design\nVersion: 2.0", "OK", null);
+        });
+        
+        // Add "Exit" Menu Item
+        tb.addMaterialCommandToSideMenu("Exit", FontImage.MATERIAL_EXIT_TO_APP, e -> {
+            exitCommand.actionPerformed(null);
+        });
+        
+        // Add "Help" Menu Item to the Right Side of the Title Bar
+        tb.addCommandToRightBar("Help", null, e -> {
+            Dialog.show("Help", "Commands:\n" +
+                                      "a: Jump to Alien\n" +
+                                      "o: Jump to Astronaut\n" +
+                                      "r: Move Right\n" +
+                                      "l: Move Left\n" +
+                                      "u: Move Up\n" +
+                                      "d: Move Down\n" +
+                                      "e: Expand Door\n" +
+                                      "c: Contract Door\n" +
+                                      "t: Clock Tick\n" +
+                                      "s: Open Door\n" +
+                                      "w: Alien Creation\n" +
+                                      "f: Alien-Astronaut Fight\n" +
+                                      "x: Exit Game\n" +
+                                      "Sound can be toggled via the Sound button or menu item.", "OK", null);
+        });
+    }
+    
+    /**
+     * Sets up key bindings for various commands.
+     */
+    private void setupKeyBindings() {
+        this.addKeyListener('a', e -> jumpToAlienCommand.actionPerformed(null));
+        this.addKeyListener('o', e -> jumpToAstronautCommand.actionPerformed(null));
+        this.addKeyListener('r', e -> moveRightCommand.actionPerformed(null));
+        this.addKeyListener('l', e -> moveLeftCommand.actionPerformed(null));
+        this.addKeyListener('u', e -> moveUpCommand.actionPerformed(null));
+        this.addKeyListener('d', e -> moveDownCommand.actionPerformed(null));
+        this.addKeyListener('e', e -> expandDoorCommand.actionPerformed(null));
+        this.addKeyListener('c', e -> contractDoorCommand.actionPerformed(null));
+        this.addKeyListener('t', e -> clockTickCommand.actionPerformed(null));
+        this.addKeyListener('s', e -> openDoorCommand.actionPerformed(null));
+        this.addKeyListener('w', e -> createAlienCommand.actionPerformed(null));
+        this.addKeyListener('f', e -> alienAstronautFightCommand.actionPerformed(null));
+        this.addKeyListener('x', e -> exitCommand.actionPerformed(null));
+        this.addKeyListener('y', e -> exitCommand.actionPerformed(null)); // Assuming 'y' confirms exit
+        this.addKeyListener('n', e -> exitCommand.actionPerformed(null));
+    }
+    
 }
-
